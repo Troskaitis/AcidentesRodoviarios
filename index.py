@@ -81,7 +81,21 @@ if not df.empty:
 
     # Filtro de causa do acidente
     causa_options = df['causa_acidente'].unique()
-    causa_selecionada = st.sidebar.multiselect('Selecione a(s) causa(s) do acidente:', causa_options)
+
+# Definindo a opção padrão como "Demais falhas mecânicas ou elétricas"
+    default_causa = ["Demais falhas mecânicas ou elétricas"] if "Demais falhas mecânicas ou elétricas" in causa_options else []
+
+    causa_selecionada = st.sidebar.multiselect(
+    'Selecione a(s) causa(s) do acidente:',
+    options=causa_options,
+    default=default_causa  # Define a opção padrão
+)
+
+# Filtrar o DataFrame com base na seleção do usuário
+if causa_selecionada:
+    df = df[df['causa_acidente'].isin(causa_selecionada)]
+    total_accidents = len(df)
+    st.write(f"{total_accidents:,} acidentes.")
     
     if causa_selecionada:
         df = df[df['causa_acidente'].isin(causa_selecionada)]
