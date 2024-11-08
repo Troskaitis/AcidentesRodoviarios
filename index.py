@@ -89,6 +89,10 @@ if not df.empty:
         st.write(f"{total_accidents:,} acidentes.")
 
     # Amostragem para melhorar a performance
+    df_map = sample_data(df, n=50000)
+    df_map = df_map[['latitude', 'longitude']]
+
+    # Certifique-se de que as colunas de coordenadas estão no tipo correto e sem valores ausentes
     df_map = df_map.dropna(subset=['latitude', 'longitude'])
     df_map['latitude'] = df_map['latitude'].astype(float)
     df_map['longitude'] = df_map['longitude'].astype(float)
