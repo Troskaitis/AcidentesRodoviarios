@@ -79,31 +79,27 @@ if not df.empty:
         start_date, end_date = date_range
         df = df[(df['data'] >= start_date.strftime('%d/%m/%Y')) & (df['data'] <= end_date.strftime('%d/%m/%Y'))]
 
-    # Filtro de causa do acidente
-    causa_options = df['causa_acidente'].unique()
-
-# Definindo a opção padrão como "Demais falhas mecânicas ou elétricas"
+    # Filtro de causa do acidente com opção "Todos os motivos"
+    causa_options = ['Todos os motivos'] + list(df['causa_acidente'].unique())
     default_causa = ["Demais falhas mecânicas ou elétricas"] if "Demais falhas mecânicas ou elétricas" in causa_options else []
 
     causa_selecionada = st.sidebar.multiselect(
-    'Selecione a(s) causa(s) do acidente:',
-    options=causa_options,
-    default=default_causa  # Define a opção padrão
-)
+        'Selecione a(s) causa(s) do acidente:',
+        options=causa_options,
+        default=default_causa
+    )
 
-# Filtrar o DataFrame com base na seleção do usuário
-if causa_selecionada:
-    df = df[df['causa_acidente'].isin(causa_selecionada)]
-    total_accidents = len(df)
-    st.write(f"{total_accidents:,} acidentes.")
+    # Lógica para mostrar todos os dados se "Todos os motivos" for selecionado ou se nenhuma seleção for feita
+    if "Todos os motivos" in causa_selecionada or not causa_selecionada:
+        filtered_df = df
+    else:
+        filtered_df = df[df['causa_acidente'].isin(causa_selecionada)]
     
-    if causa_selecionada:
-        df = df[df['causa_acidente'].isin(causa_selecionada)]
-        total_accidents = len(df)
-        st.write(f"{total_accidents:,} acidentes.")
+    total_accidents = len(filtered_df)
+    st.write(f"{total_accidents:,} acidentes.")
 
     # Amostragem para melhorar a performance
-    df_map = sample_data(df, n=50000)
+    df_map = sample_data(filtered_df, n=50000)
     df_map = df_map[['latitude', 'longitude']]
 
     # Certifique-se de que as colunas de coordenadas estão no tipo correto e sem valores ausentes
@@ -119,7 +115,7 @@ if causa_selecionada:
 
     # Exibindo tabela de contagem por motivo
     st.subheader("Quantidade de acidentes por motivo")
-    causa_count = df['causa_acidente'].value_counts().reset_index()
+    causa_count = filtered_df['causa_acidente'].value_counts().reset_index()
     causa_count.columns = ['Causa do Acidente', 'Quantidade']
     st.table(causa_count)
 else:
