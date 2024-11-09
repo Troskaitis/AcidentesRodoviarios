@@ -25,7 +25,7 @@ st.markdown("""
         padding-top: 2rem;
     }
     h1, h2, h3 {
-        color: #2c3e50;
+        color: #fffff;
     }
     </style>
 """, unsafe_allow_html=True)
