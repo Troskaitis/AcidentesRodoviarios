@@ -104,7 +104,7 @@ if not df.empty:
         st.sidebar.title("Filtros de Análise")
         
         # Filtro de data
-        st.subheader("📅 Período")
+        st.subheader("Período")
         min_date = pd.to_datetime(df['data'].min(), format='%d/%m/%Y')
         max_date = pd.to_datetime(df['data'].max(), format='%d/%m/%Y')
         date_range = st.date_input(
@@ -115,7 +115,7 @@ if not df.empty:
         )
 
         # Filtro de causa
-        st.subheader("🔍 Causa do Acidente")
+        st.subheader("Causa do Acidente")
         causa_options = ['Todos os motivos'] + list(df['causa_acidente'].unique())
         causa_selecionada = st.multiselect(
             'Selecione as causas:',
