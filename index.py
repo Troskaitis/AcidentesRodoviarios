@@ -76,7 +76,7 @@ def sample_data(df, n=50000):
 
 # Header
 st.title("Dashboard de Acidentes Rodoviários")
-st.write("### Análise Detalhada de Acidentes nas Rodovias Brasileiras (2017-2023)")
+st.write("###Análise Detalhada de Acidentes nas Rodovias Brasileiras")
 
 # Carregar dados
 with st.spinner('📊 Carregando dados...'):
