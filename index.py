@@ -8,7 +8,6 @@ import numpy as np
 # Configuração da página
 st.set_page_config(
     page_title="Análise de Acidentes Rodoviários | Brasil",
-    page_icon="🚗",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -136,7 +135,7 @@ if not df.empty:
         filtered_df = df[df['causa_acidente'].isin(causa_selecionada)]
 
     # Tabs
-    tab1, tab2, tab3 = st.tabs(["📍 Mapa", "📊 Análise por Causa", "📈 Tendências"])
+    tab1, tab2, tab3 = st.tabs(["Mapeamento", "Causas", "Tendência"])
     
     with tab1:
         st.subheader("Distribuição Geográfica dos Acidentes")
