@@ -2,3 +2,4 @@ pandas
 kagglehub
 streamlit
 gdown
+plotly.express
