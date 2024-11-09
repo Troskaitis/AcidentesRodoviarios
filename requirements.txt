@@ -1,7 +1,5 @@
-pandas
-kagglehub
-streamlit
-gdown
-plotly.express
-plotly.graph_objects
-numpy
+pandas==2.2.3
+kagglehub==0.3.4
+streamlit==1.40.0
+gdown==5.2.0
+plotly==5.19.0
