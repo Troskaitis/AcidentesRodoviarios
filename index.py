@@ -75,8 +75,8 @@ def sample_data(df, n=50000):
     return df
 
 # Header
-st.title("🚗 Dashboard de Acidentes Rodoviários")
-st.markdown("### Análise Detalhada de Acidentes nas Rodovias Brasileiras (2017-2023)")
+st.subheader("Dashboard de Acidentes Rodoviários")
+st.write("### Análise Detalhada de Acidentes nas Rodovias Brasileiras (2017-2023)")
 
 # Carregar dados
 with st.spinner('📊 Carregando dados...'):
@@ -192,7 +192,7 @@ if not df.empty:
     st.markdown("""
         <div style='text-align: center'>
             <p>Dashboard desenvolvido para análise de acidentes rodoviários no Brasil.</p>
-            <p>Fonte: Base Nacional de Acidentes de Trânsito</p>
+            <p>Fonte: Kaggle</p>
         </div>
     """, unsafe_allow_html=True)
 else:
