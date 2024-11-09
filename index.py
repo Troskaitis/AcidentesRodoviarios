@@ -151,7 +151,7 @@ if not df.empty:
         df_map = df_map.dropna()
         
         if not df_map.empty:
-            st.map(df_map)
+            st.map(df_map, zoom=5, color="#21bbe2")
         else:
             st.warning("Não há dados válidos para exibir no mapa.")
         
