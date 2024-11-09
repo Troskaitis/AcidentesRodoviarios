@@ -1,15 +1,44 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
+import plotly.express as px
+import plotly.graph_objects as go
 import kagglehub
 
-# Configuração da página
+# Configuração da página com tema e layout mais profissional
 st.set_page_config(
-    page_title="Mapa de Acidentes Rodoviários",
-    layout="wide"
+    page_title="Análise de Acidentes Rodoviários | Brasil",
+    page_icon="🚗",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# Função para carregar e preparar os dados
+# Aplicando estilo CSS personalizado
+st.markdown("""
+    <style>
+    .main {
+        padding: 1rem 2rem;
+    }
+    .stButton>button {
+        width: 100%;
+    }
+    .reportview-container .main .block-container {
+        padding-top: 2rem;
+    }
+    .sidebar .sidebar-content {
+        background-color: #f5f5f5;
+    }
+    h1, h2, h3 {
+        color: #2c3e50;
+    }
+    .stAlert {
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Função para carregar e preparar os dados (mantida igual)
 @st.cache_data
 def load_data():
     dtypes = {
@@ -36,10 +65,9 @@ def load_data():
         chunk['data'] = pd.to_datetime(chunk['data_inversa'], errors='coerce')
         chunk['data'] = chunk['data'].dt.strftime('%d/%m/%Y')
         
-        # Mask to keep only data points within Brazil
         mask = (
-            chunk['latitude'].between(-34, 5) &  # Latitude range for Brazil
-            chunk['longitude'].between(-74, -29) &  # Longitude range for Brazil
+            chunk['latitude'].between(-34, 5) &
+            chunk['longitude'].between(-74, -29) &
             chunk['latitude'].notna() &
             chunk['longitude'].notna()
         )
@@ -49,74 +77,133 @@ def load_data():
     df_final = pd.concat(chunks, ignore_index=True)
     return df_final
 
-# Função para amostrar dados
 def sample_data(df, n=50000):
-    """Retorna uma amostra dos dados se o DataFrame tiver mais de n linhas"""
     if len(df) > n:
         return df.sample(n=n, random_state=42)
     return df
 
-# Carregar os dados com feedback de progresso
-with st.spinner('Carregando dados...'):
+# Header do Dashboard
+st.title("🚗 Dashboard de Acidentes Rodoviários")
+st.markdown("### Análise Detalhada de Acidentes nas Rodovias Brasileiras (2017-2023)")
+
+# Carregar dados com barra de progresso mais elegante
+with st.spinner('📊 Carregando dados...'):
     try:
         df = load_data()
         total_accidents = len(df)
-        st.subheader("Acidentes Rodoviários no Brasil - 2017 a 2023")
-        st.write(f"Exibindo uma amostra de 50,000 pontos de {total_accidents:,} acidentes.")
+        
+        # Metrics Container
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Total de Acidentes", f"{total_accidents:,}")
+        with col2:
+            st.metric("Período", f"2017-2023")
+        with col3:
+            st.metric("Estados Cobertos", "27")
+            
     except Exception as e:
-        st.error(f'Ocorreu um erro ao carregar os dados: {e}')
+        st.error('⚠️ Erro ao carregar os dados: Verifique a conexão com a fonte de dados.')
+        st.exception(e)
         df = pd.DataFrame()
 
-# Adicionando filtros
+# Sidebar mais organizada
 if not df.empty:
-    # Filtro de data
-    st.sidebar.header("Filtros")
-    min_date = pd.to_datetime(df['data'].min(), format='%d/%m/%Y')
-    max_date = pd.to_datetime(df['data'].max(), format='%d/%m/%Y')
-    date_range = st.sidebar.date_input("Selecione o intervalo de datas:", [min_date, max_date])
+    with st.sidebar:
+        st.sidebar.image("https://www.gov.br/transportes/pt-br/assuntos/transito/arquivos-senatran/logo-senatran.png", width=200)
+        st.sidebar.title("Filtros de Análise")
+        
+        # Filtro de data com layout melhorado
+        st.subheader("📅 Período")
+        min_date = pd.to_datetime(df['data'].min(), format='%d/%m/%Y')
+        max_date = pd.to_datetime(df['data'].max(), format='%d/%m/%Y')
+        date_range = st.date_input(
+            "Selecione o intervalo:",
+            [min_date, max_date],
+            min_value=min_date,
+            max_value=max_date
+        )
 
+        # Filtro de causa com search
+        st.subheader("🔍 Causa do Acidente")
+        causa_options = ['Todos os motivos'] + list(df['causa_acidente'].unique())
+        causa_selecionada = st.multiselect(
+            'Selecione as causas:',
+            options=causa_options,
+            default=['Todos os motivos']
+        )
+
+        # Botão de exportação
+        if st.button('📥 Exportar Dados Filtrados'):
+            st.download_button(
+                label="Download CSV",
+                data=df.to_csv(index=False).encode('utf-8'),
+                file_name='acidentes_rodoviarios.csv',
+                mime='text/csv'
+            )
+
+    # Aplicando filtros
     if len(date_range) == 2:
         start_date, end_date = date_range
-        df = df[(df['data'] >= start_date.strftime('%d/%m/%Y')) & (df['data'] <= end_date.strftime('%d/%m/%Y'))]
+        df = df[(df['data'] >= start_date.strftime('%d/%m/%Y')) & 
+                (df['data'] <= end_date.strftime('%d/%m/%Y'))]
 
-    # Filtro de causa do acidente com opção "Todos os motivos"
-    causa_options = ['Todos os motivos'] + list(df['causa_acidente'].unique())
-    default_causa = ["Demais falhas mecânicas ou elétricas"] if "Demais falhas mecânicas ou elétricas" in causa_options else []
-
-    causa_selecionada = st.sidebar.multiselect(
-        'Selecione a(s) causa(s) do acidente:',
-        options=causa_options,
-        default=default_causa
-    )
-
-    # Lógica para mostrar todos os dados se "Todos os motivos" for selecionado ou se nenhuma seleção for feita
     if "Todos os motivos" in causa_selecionada or not causa_selecionada:
         filtered_df = df
     else:
         filtered_df = df[df['causa_acidente'].isin(causa_selecionada)]
+
+    # Layout principal com tabs
+    tab1, tab2, tab3 = st.tabs(["📍 Mapa", "📊 Análise por Causa", "📈 Tendências"])
     
-    total_accidents = len(filtered_df)
-    st.write(f"{total_accidents:,} acidentes.")
+    with tab1:
+        st.subheader("Distribuição Geográfica dos Acidentes")
+        df_map = sample_data(filtered_df, n=50000)
+        df_map = df_map[['latitude', 'longitude']]
+        df_map = df_map.dropna(subset=['latitude', 'longitude'])
+        
+        if not df_map.empty:
+            st.map(df_map, size=10, zoom=5, color="#FF4B4B")
+        
+    with tab2:
+        st.subheader("Análise por Causa de Acidente")
+        
+        # Gráfico de barras com Plotly
+        causa_count = filtered_df['causa_acidente'].value_counts()
+        fig = px.bar(
+            x=causa_count.values,
+            y=causa_count.index,
+            orientation='h',
+            title='Distribuição de Acidentes por Causa',
+            labels={'x': 'Número de Acidentes', 'y': 'Causa'},
+            color=causa_count.values,
+            color_continuous_scale='Reds'
+        )
+        fig.update_layout(showlegend=False, height=600)
+        st.plotly_chart(fig, use_container_width=True)
+        
+    with tab3:
+        st.subheader("Tendência Temporal")
+        filtered_df['data'] = pd.to_datetime(filtered_df['data'], format='%d/%m/%Y')
+        acidentes_por_mes = filtered_df.groupby(filtered_df['data'].dt.strftime('%Y-%m')).size().reset_index()
+        acidentes_por_mes.columns = ['Mês', 'Quantidade']
+        
+        fig = px.line(
+            acidentes_por_mes,
+            x='Mês',
+            y='Quantidade',
+            title='Evolução Mensal dos Acidentes',
+            markers=True
+        )
+        fig.update_layout(height=400)
+        st.plotly_chart(fig, use_container_width=True)
 
-    # Amostragem para melhorar a performance
-    df_map = sample_data(filtered_df, n=50000)
-    df_map = df_map[['latitude', 'longitude']]
-
-    # Certifique-se de que as colunas de coordenadas estão no tipo correto e sem valores ausentes
-    df_map = df_map.dropna(subset=['latitude', 'longitude'])
-    df_map['latitude'] = df_map['latitude'].astype(float)
-    df_map['longitude'] = df_map['longitude'].astype(float)
-
-    # Exibindo os dados no mapa do Streamlit
-    if not df_map.empty:
-        st.map(df_map, size=10, zoom=5, color="#21bbe2")
-    else:
-        st.write("Nenhum ponto a ser exibido no mapa.")
-
-    # Exibindo tabela de contagem por motivo
-    st.subheader("Quantidade de acidentes por motivo")
-    causa_count = filtered_df['causa_acidente'].value_counts().reset_index()
-    causa_count.columns = ['Causa do Acidente', 'Quantidade']
-    st.table(causa_count)
+    # Footer
+    st.markdown("""---""")
+    st.markdown("""
+        <div style='text-align: center'>
+            <p>Dashboard desenvolvido para análise de acidentes rodoviários no Brasil.</p>
+            <p>Fonte: Base Nacional de Acidentes de Trânsito</p>
+        </div>
+    """, unsafe_allow_html=True)
 else:
-    st.write("Nenhum dado disponível para exibição.")
+    st.error("Não foi possível carregar os dados. Verifique a conexão com a fonte de dados.")
