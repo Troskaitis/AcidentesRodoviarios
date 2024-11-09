@@ -3,3 +3,4 @@ kagglehub
 streamlit
 gdown
 plotly.express
+plotly.graph_objects
