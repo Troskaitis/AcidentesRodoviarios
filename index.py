@@ -75,7 +75,7 @@ def sample_data(df, n=50000):
     return df
 
 # Header
-st.subheader("Dashboard de Acidentes Rodoviários")
+st.title("Dashboard de Acidentes Rodoviários")
 st.write("### Análise Detalhada de Acidentes nas Rodovias Brasileiras (2017-2023)")
 
 # Carregar dados
