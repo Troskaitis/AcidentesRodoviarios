@@ -7,7 +7,7 @@
 
 ## 📌 Sobre o Projeto
 
-Dashboard interativo desenvolvido para análise e visualização de dados de acidentes rodoviários no Brasil, cobrindo o período de 2017 a 2023. A ferramenta processa dados da Base Nacional de Acidentes de Trânsito, oferecendo insights cruciais para a segurança viária através de visualizações interativas e análises detalhadas.
+Dashboard interativo desenvolvido para análise e visualização de dados de acidentes rodoviários no Brasil, cobrindo o período de 2017 a 2023. A ferramenta processa dados da publciada na plataforma Kaggle, oferecendo insights cruciais para a segurança viária através de visualizações interativas e análises detalhadas.
 
 ## 🎯 Funcionalidades
 
@@ -104,15 +104,7 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 
 ## 📫 Contato
 
-[Seu Nome] - [seu-email@exemplo.com]
+[Rodrigo Troskaitis Santos] - [rodrigo.troskaitis@gmail.com]
 
-Link do projeto: [https://github.com/seu-usuario/acidentes-rodoviarios](https://github.com/seu-usuario/acidentes-rodoviarios)
+Link do projeto: [[https://github.com/seu-usuario/acidentes-rodoviarios](https://github.com/Troskaitis/AcidentesRodoviarios)
 
-## 🙏 Agradecimentos
-
-- Base Nacional de Acidentes de Trânsito
-- Comunidade Streamlit
-- Contribuidores do projeto
-
----
-Desenvolvido com ❤️ para contribuir com a segurança viária no Brasil
